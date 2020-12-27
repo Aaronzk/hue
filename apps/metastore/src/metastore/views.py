@@ -43,7 +43,10 @@ from notebook.models import make_notebook
 from metastore.forms import LoadDataForm, DbForm
 from metastore.settings import DJANGO_APPS
 
-
+import os
+import subprocess
+import datetime
+import pytz
 LOG = logging.getLogger(__name__)
 
 SAVE_RESULTS_CTAS_TIMEOUT = 300         # seconds
@@ -269,6 +272,16 @@ def describe_table(request, database, table):
 
   try:
     table = db.get_table(database, table)
+    LOG.info("GET lastDataModifyTime start")
+    hdfs_path = table.path_location
+    LOG.info(hdfs_path)
+    res = subprocess.Popen(['hadoop fs -stat "%Y" ' + hdfs_path], stdout=subprocess.PIPE, shell=True)
+    mtime = res.stdout.read().replace("\n", "")
+    LOG.info(mtime)
+    local_tz = pytz.timezone('Asia/Chongqing')
+    dt = datetime.datetime.fromtimestamp(float(mtime)/1000, local_tz)
+    dtstr = dt.strftime("%Y-%m-%d %H:%M:%S")
+    LOG.info("GET lastDataModifyTime end")
   except Exception, e:
     LOG.exception("Describe table error")
     raise PopupException(_("DB Error"), detail=e.message if hasattr(e, 'message') and e.message else e)
@@ -285,7 +298,8 @@ def describe_table(request, database, table):
         'is_view': table.is_view,
         'properties': table.properties,
         'details': table.details,
-        'stats': table.stats
+        'stats': table.stats,
+        'update_time': dtstr
     })
   else:  # Render HTML
     renderable = "metastore.mako"
