@@ -52,8 +52,9 @@ admin.autodiscover()
 
 # Some django-wide URLs
 dynamic_patterns = patterns('desktop.auth.views',
-  (r'^accounts/login/$', 'dt_login'),
-  (r'^accounts/logout/$', 'dt_logout', {'next_page': '/'}),
+  (r'^hue/accounts/loginx/$', 'dt_login'),
+  #(r'^accounts/login/$', 'dt_login'),
+  #(r'^accounts/logout/$', 'dt_logout', {'next_page': '/'}),
   (r'^profile$', 'profile'),
   (r'^login/oauth/?$', 'oauth_login'),
   (r'^login/oauth_authenticated/?$', 'oauth_authenticated'),
@@ -179,6 +180,8 @@ if METRICS.ENABLE_WEB_METRICS.get():
   )
 
 dynamic_patterns += patterns('',
+  (r'^accounts/login/', 'django_cas_ng.views.login'),
+  (r'^accounts/logout/', 'django_cas_ng.views.logout'),
   (r'^admin/', include(admin.site.urls)),
 )
 

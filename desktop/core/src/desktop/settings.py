@@ -163,7 +163,13 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.http.ConditionalGetMiddleware',
     'axes.middleware.FailedLoginMiddleware',
     'desktop.middleware.MimeTypeJSFileFixStreamingMiddleware',
+    #cas
+    'django_cas_ng.middleware.CASMiddleware',
 ]
+
+#
+CAS_SERVER_URL = 'http://10.22.18.199/cas/login'
+CAS_VERSION = '1'
 
 # if os.environ.get(ENV_DESKTOP_DEBUG):
 #   MIDDLEWARE_CLASSES.append('desktop.middleware.HtmlValidationMiddleware')

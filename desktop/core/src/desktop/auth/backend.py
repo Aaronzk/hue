@@ -590,3 +590,57 @@ class RemoteUserDjangoBackend(django.contrib.auth.backends.RemoteUserBackend):
     user = rewrite_user(user)
     return user
 
+
+
+from django.conf import settings
+from django_cas_ng.backends import _verify
+from django_cas_ng.signals import cas_user_authenticated
+ 
+class CASBackend(object):
+  """CAS authentication backend"""
+  
+  def authenticate(self, ticket, service, request):
+    """Verifies CAS ticket and gets or creates User object"""
+    username, attributes = _verify(ticket, service)
+    if attributes:
+      request.session['attributes'] = attributes
+    if not username:
+      return None
+    try:
+      user = User.objects.get(username=username)
+      created = False
+    except User.DoesNotExist:
+      #check if we want to create new users, if we don't fail auth
+      create = getattr(settings, 'CAS_CREATE_USER', True)
+      if not create:
+        return None
+      #user will have an "unusable" password
+      user = User.objects.create_user(username, '')
+      #user.save()
+      created = True
+      
+    default_group = get_default_user_group()
+    if default_group is not None:
+      user.groups.add(default_group)
+    user = rewrite_user(user)
+    user.save()
+    #send the 'cas_user_authenticated' signal
+    cas_user_authenticated.send(
+      sender=self,
+      user=user,
+      created=created,
+      attributes=attributes,
+      ticket=ticket,
+      service=service,
+    )
+    return user
+    
+  def get_user(self, user_id):
+    """Retrieve the user's entry in the User model if it exists"""
+    
+    try:
+      return rewrite_user(User.objects.get(pk=user_id))
+    except User.DoesNotExist:
+      return None
+
+

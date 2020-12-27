@@ -55,7 +55,7 @@ from desktop import appmanager
 from desktop import metrics
 from hadoop import cluster
 
-
+import django_cas_ng.views
 
 LOG = logging.getLogger(__name__)
 
@@ -64,6 +64,7 @@ MIDDLEWARE_HEADER = "X-Hue-Middleware-Response"
 # Views inside Django that don't require login
 # (see LoginAndPermissionMiddleware)
 DJANGO_VIEW_AUTH_WHITELIST = [
+  django_cas_ng.views.login,
   django.views.static.serve,
   desktop.views.is_alive,
 ]
