@@ -1103,6 +1103,13 @@ var ApiHelper = (function () {
       },
       success: function (response) {
         if (! self.successResponseIsError(response)) {
+          console.log(response);
+          var updatetime=response.update_time;
+          response.details.stats.updateTime=updatetime;
+          var utjson = {"comment":"","col_name":"","data_type":"lastDataModifyTime"};
+          utjson.comment = updatetime;
+          response.properties.push(utjson);
+          response.stats.push(utjson);
           options.successCallback(response);
         } else {
           self.assistErrorCallback(options)(response);

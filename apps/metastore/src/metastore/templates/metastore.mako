@@ -353,6 +353,9 @@ ${ components.menubar(is_embeddable) }
         <!-- ko if: typeof totalSize !== 'undefined' && typeof last_modified_by === 'undefined' -->
           <div title="${ _('Total size') }"><i class="fa fa-fw fa-tasks muted"></i> <span data-bind="text: filesize(totalSize)"></span></div>
         <!-- /ko -->
+        <!-- ko if: typeof updateTime !== 'undefined' -->
+          <div title="最后更新时间"><i class="fa fa-fw fa-clock-o muted"></i> <span data-bind="text: updateTime"></span></div>
+        <!-- /ko -->
       <!-- /ko -->
     </div>
     <!-- /ko -->
